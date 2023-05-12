@@ -1,39 +1,47 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math as m
+import csv
 
-datafile = open('input.xlsx', 'r', encoding='utf-8')
-xOriginal = np.linspace(0,1, num=9,endpoint=True)
-yOriginal = np.sin(2*m.pi*(xOriginal+0.25))
+readFile = list(csv.reader(open('input.csv', 'r'))) # read the file
+readFile = readFile[1:] # get rid of the header
+x = [float(entry[0]) for entry in readFile] # read x
+y = [float(entry[1]) for entry in readFile] # read y
 
-if(len(xOriginal)!=len(yOriginal)):
+if(len(x)!=len(y)):
     raise Exception("you call that a signal?")
-elif(len(xOriginal)<5):
+elif(len(x)<5):
     raise Exception("x and y length not the same")
-else:
-    duration = xOriginal[-1]-xOriginal[0]
-    fundFreq = 1/duration   # lowest possible frequency
-    
-    x=np.delete(xOriginal, -1)  # We're getting rid of the last because we don't need it
-    y=np.delete(yOriginal, -1)
 
-listLen = len(x)        # number of samples
-freq = np.linspace(0,(listLen-1)*fundFreq, listLen)
-print("FREQ:", freq)
+duration = x[-1]-x[0]       # signal duration
+numSamples = len(x)         # number of samples
+nList = range(1,numSamples) # frequency list
 
-sinAmp = [sum([y[X] * m.sin(2*m.pi*f*x[X]) for X in range(listLen)]) for f in freq]
-cosAmp = [sum([y[X] * m.cos(2*m.pi*f*x[X]) for X in range(listLen)]) for f in freq]
+sinAmp = [sum([y[X] * m.sin(2*m.pi*n*x[X] / duration) for X in range(numSamples-1)]) for n in nList]   # list of riemann sums for coefficient of sine. Note: not scaled by duration or number of samples
+cosAmp = [sum([y[X] * m.cos(2*m.pi*n*x[X] / duration) for X in range(numSamples-1)]) for n in nList]   # same thing but for cosine
 
-ampTot = [m.sqrt(sinAmp[n] ** 2 + cosAmp[n] **2)*2*duration/listLen for n in range(listLen)]
-phase = [m.atan2(cosAmp[n], sinAmp[n]) for n in range(listLen)]
+phase = [m.atan2(cosAmp[n-1],sinAmp[n-1]) for n in nList]                          # phase shift
+ampTot = [m.sqrt(sinAmp[n-1] ** 2 + cosAmp[n-1] **2)/(numSamples-1) for n in nList] # scaled amplitude
 
-y2 = [[ampTot[n]*m.sin(2*m.pi*freq[n]*(x+phase[n])) for n in range(listLen)] for x in x]
-#y2T = [[y2[b][a] for b in range(listLen+1)] for a in range(listLen)]
-y2Sum = [sum(y2[n]) for n in range(listLen)]
+y2List = [[ampTot[n-1]*m.sin(phase[n-1]+2*m.pi*n*x/duration) for n in nList] for x in x]    # 2d list. One dimension is x, the other direction is frequency
+y2 = [sum(y2List[X]) for X in range(numSamples)]                                            # reconstructed y
 
-#print("AMP:", sinAmp)
-#print("PHASE:", phase)
+plt.plot(x,y, 'ok')
+plt.plot(x[:-1],y2[:-1], ':r')
+plt.legend(["Original data","Reconstruction"])
+plt.title("Amplitude vs Time")
+plt.xlabel("time")
+plt.ylabel("amplitude")
+plt.figure()
 
-plt.plot(x,y)
-plt.plot(x,y2Sum)
+plt.plot(nList,ampTot)
+plt.title("Amplitude-Frequency Domain")
+plt.xlabel("Frequency (hz)")
+plt.ylabel("Amplitude")
+plt.figure()
+
+plt.plot(nList,phase)
+plt.title("Phase-Frequency Domain")
+plt.xlabel("Frequency (hz)")
+plt.ylabel("Phase Angle (rad)")
 plt.show()
