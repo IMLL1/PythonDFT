@@ -34,10 +34,10 @@ frequencies = (numSamples / duration) * np.arange(0, numSamples // 2) / numSampl
 # frequency (hz)
 
 xSmooth = np.linspace(df.X.iloc[0], df.X.iloc[-1], num=500, endpoint=True)  # smoothed X
-ySmooth = np.empty(500)
+ySmooth = np.empty(500) # empty smoothed y, to fill
 for idx, xCord in enumerate(xSmooth):  # fill in the rows
     ySmooth[idx] = np.sum(
-        magnitudes * np.cos(m.tau * frequencies * xCord - phaseOffsets)
+        magnitudes * np.cos(m.tau * frequencies * (xCord-df.X.iloc[0]) - phaseOffsets)
     )
 
 plt.rcParams["axes.grid"] = True
