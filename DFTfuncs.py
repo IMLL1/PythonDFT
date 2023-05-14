@@ -3,10 +3,10 @@ def dft1d(y, n=None):
     from math import tau
 
     """_summary_
-        Runs a discrete fourier transform on a 1 dimensional set of data
+        Runs a discrete fourier transform on a 1 dimensional set of data. The Fourier transform length 
     Args:
-        y (real numpy array): a numpy array of real y values, evenly distributed in x
-        n (int):              number of frequencies to use
+        y (real numpy array): a numpy array of real y values, evenly distributed in t
+        n (int):              number of frequencies to use, including the zero frequency. Defaults to the length of the signal.
     """
     y = np.array(y)  # convert to array if list
     lenY = len(y)
@@ -21,7 +21,7 @@ def dft1d(y, n=None):
     # initialize empty complex amplitudes array
     dftObj = np.empty(n, dtype=complex)
     for idx in range(n):
-        # set the nth element equal to te integral of y*e^(i*expArg) = int(y*cis(expArg)). The integrals are really Reimann sums
+        # set the nth element equal to te integral of y*e^(2pi(frequency)(x between 0 and 1)i). The integrals are really Reimann sums
         dftObj[idx] = np.sum(y * np.exp(tau * idx * np.arange(n) * 1j / n))
 
     return dftObj
