@@ -12,14 +12,14 @@ elif len(df) < 5:
         "You call that a signal? That signal is shorter than Yoda in a limbo competition"
     )
 if len(df) % 2:
-    df = df[:-1]    # cut last element if odd
+    df = df[:-1]  # cut last element if odd
 
 dftObj = dft1d(df.Y)
-dftObj[abs(dftObj) < 1e-11] = 0  # noise smoothing
+dftObj[abs(dftObj) < 1e-6] = 0  # noise smoothing
 
 duration = df.X.iloc[-1] - df.X.iloc[0]  # signal duration
 numSamples = len(df.Y)  # number of samples
-sampleFreq = 1/(df.X.iloc[1]-df.X.iloc[0])
+sampleFreq = 1 / (df.X.iloc[1] - df.X.iloc[0])
 
 ## 2 sided
 mags2Sided = np.abs(dftObj / numSamples)  # amplitude of each singal
@@ -41,36 +41,42 @@ xSmooth = np.linspace(df.X.iloc[0], df.X.iloc[-1], num=500, endpoint=True)  # sm
 ySmooth = np.empty(500)  # empty smoothed y, to fill
 for idx, xCord in enumerate(xSmooth):  # fill in the rows
     ySmooth[idx] = np.sum(
-        mags2Sided * np.cos(m.tau * freqs2Sided * (xCord - df.X.iloc[0]) - phases2Sided)
+        mags1Sided * np.cos(m.tau * freqs1Sided * (xCord - df.X.iloc[0]) + phases1Sided)
     )
 
-plt.rcParams["axes.grid"] = True
-plt.rcParams["lines.linewidth"] = 1
-plt.rcParams["lines.markersize"] = 3
-
 plt.style.use(["dark_background"])
+plt.rcParams.update(
+    {
+        "axes.grid": True,
+        "grid.color": [0.25, 0.25, 0.25],
+        "lines.linewidth": 1,
+        "lines.markersize": 3,
+    }
+)
 
 plt.figure("Reconstruction")
-plt.plot(df.X, df.Y, "oy")
-plt.plot(xSmooth, ySmooth.transpose()[:][:], "-r", linewidth=2)
-plt.legend(["Original data", "Smoothed Transform"])
+plt.plot(xSmooth, ySmooth, "-r")
+plt.plot(df.X, df.Y, "oy",mfc='none', mew=0.5)
+plt.legend(["Transform", "Original data"])
 plt.title("Amplitude vs Time")
-plt.xlabel("time")
-plt.ylabel("amplitude")
+plt.xlabel("Time")
+plt.ylabel("Amplitude")
 
 fig, axs = plt.subplots(2, 1, sharex=True)
 fig.suptitle("One-Sided Fourier Transform")
-axs[0].plot(freqs1Sided, mags1Sided, "--oc")
+axs[0].plot(freqs1Sided, mags1Sided, "-oc")
 axs[0].set_ylabel("Amplitude")
-axs[1].plot(freqs1Sided, phases1Sided, "--oc")
+axs[1].plot(freqs1Sided, phases1Sided, "-oc")
 axs[1].set_ylabel("Phase Angle (rad)")
 axs[1].set_xlabel("Frequency (hz)")
+fig.tight_layout()
 
 fig, axs = plt.subplots(2, 1, sharex=True)
 fig.suptitle("Two-Sided Fourier Transform")
-axs[0].plot(freqs2Sided, mags2Sided, "--oc")
+axs[0].plot(freqs2Sided, mags2Sided, "-oc")
 axs[0].set_ylabel("Amplitude")
-axs[1].plot(freqs2Sided, phases2Sided, "--oc")
+axs[1].plot(freqs2Sided, phases2Sided, "-oc")
 axs[1].set_ylabel("Phase Angle (rad)")
 axs[1].set_xlabel("Frequency (hz)")
+fig.tight_layout()
 plt.show()
