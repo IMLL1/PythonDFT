@@ -1,4 +1,4 @@
-DFTfuncs.py is the DFT function (functions, later). I intend on adding FFT instead of just the slower one. This file is required for both python scripts
+DFTfuncs.py is the DFT functions. There's a sft (slow fourier transform) function, as well as two FFT functions; one slightly faster (a factor of about two) than the other. This file is required for both python scripts
 input.csv contains the data. It is also required, and can be edited as neede
 
 signalAnalysis presents some fourier transform information about a singal (specifically, the signal in input.txt)
