@@ -32,14 +32,6 @@ while True:
 fftArray = abs(fft(np.array(imgInput)))
 # each "layer" is the same as image size, with num channels = num layers
 
-# apply log scale at user request
-# logScale = input("Log scale? (Y, YES, or 1): ").upper().strip()
-# if logScale in ["Y", "YES", "1"]:
-#    fftArray = norm(fftArray)
-#
-# scale it to be 0-255
-# fftArray -= fftArray.min()
-# fftArray *= 255 / fftArray.max()
 fftArray = norm(fftArray)
 
 imgLog = Image.new("RGB", fftArray.shape[1::-1])  # imgOut the same size as the FFT
