@@ -3,7 +3,6 @@ import numpy as np
 from mpl_interactions import panhandler, zoom_factory
 import matplotlib.pyplot as plt
 import scipy.fftpack as sfft
-from scipy.signal import blackman
 
 # %matplotlib widget
 
@@ -58,7 +57,9 @@ if reconstruct:
     tSmooth = np.linspace(t[0], t[-1], num=2 * numSamples, endpoint=True)  # smoothed t
     xSmooth = np.sum(
         mags1S
-        * np.cos(2 * np.pi * freqs1S * (tSmooth[:, None] - t[0]) + phases1S * np.pi),
+        * np.cos(
+            2 * np.pi * freqs1S * (tSmooth[:, None] - t[0]) + phases1S * 2 * np.pi
+        ),
         1,
     )
     plt.plot(t, x, "-y", lw=2)
